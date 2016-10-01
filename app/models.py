@@ -4,57 +4,24 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-GENDER = (
-	('M', 'Male'),
-	('F', 'Female'),
-	)
-
-
-class Merchant(models.Model):
-	# merchant_id = models.CharField(max_length=30, unique=True, blank=False)
-	code = models.CharField(max_length=10)
-	name = models.CharField(max_length=50)
-	email = models.EmailField()
-	phone = models.CharField(max_length=10)
-
-	def __str__(self):
-		return "%s" % self.merchant_id
-
-class Expense(models.Model):
-	expense_id = models.CharField(max_length=30, unique=True, blank=False)
-	description = models.CharField(max_length=100)
-	amount = models.FloatField()
-	timestamp = models.DateTimeField(auto_now_add=True)
-	merchant_id = models.ForeignKey('Merchant')
-	user_id = models.ForeignKey('PayUser')
-
-	def __str__(self):
-		return "%s" % self.expense_id
-
-class Approval(models.Model):
-	approval_id = models.CharField(max_length=30, unique=True, blank=False)
-	amount = models.FloatField()
+class Promos(models.Model):
+	promoCode = models.CharField(max_length=20, unique=True)
+	amount = models.FloatField(blank=False, null=True)
+	phone = models.ForeignKey('PayUser')
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
-	master = models.ForeignKey('PayUser',related_name="approval_master", blank=False)
-	child = models.ForeignKey('PayUser')
+	active = models.BooleanField(default=True)
 
 	def __str__(self):
-		return "%s" % self.approval_id
+		return "%s" % self.promoCode
 
 class PayUser(models.Model):
-	# user_id = models.CharField(max_length=30, unique=True, blank=False)
 	user = models.OneToOneField(User, blank=False, null=True)
 	password = models.CharField(max_length=30, blank=False, null=True, error_messages={'required': 'This field is required'})
 	name = models.CharField(max_length=50, blank=False)
-	phone = models.CharField(max_length=10, blank=False)
+	phone = models.CharField(max_length=10, unique=True, blank=False, null=False, primary_key=True)
 	email = models.EmailField()
-	gender = models.CharField(max_length=1, choices=GENDER, default='M')
-	allowance = models.IntegerField()
-	is_master = models.BooleanField(default=False)
-	is_child = models.BooleanField(default=False)
-	master = models.ForeignKey('PayUser', related_name="user_master", blank=True, null=True)
 
 	def __str__(self):
-		return "%s" % self.user_id
+		return "%s" % self.phone
 

@@ -34,7 +34,7 @@
             $('#id_user-username').change(function(){
                 var value = $(this).val();
                 if(value != ''){
-                    var url = "http://localhost:8000/app/check/username/"+value
+                    var url = "http://10.0.151.126:8000/app/check/username/"+value
                     $.ajax({url: url, success: function(result){
                     if(result['status'] == "Available"){
                         $('.username-check').html('Username Available');
