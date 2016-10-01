@@ -29,12 +29,12 @@
 {% block javascript %}
     <script>
         $(document).ready(function(){
-            $('#div_id_sign-username').after("<div class='username-check'><div>");
-            $('insput[type="submit"]').prop('disabled', true);
-            $('#id_sign-username').change(function(){
+            $('#div_id_user-username').after("<div class='username-check'><div>");
+            $('input[type="submit"]').prop('disabled', true);
+            $('#id_user-username').change(function(){
                 var value = $(this).val();
                 if(value != ''){
-                    var url = "https://hitenasintern.herokuapp.com/check/username/"+value
+                    var url = "http://localhost:8000/app/check/username/"+value
                     $.ajax({url: url, success: function(result){
                     if(result['status'] == "Available"){
                         $('.username-check').html('Username Available');

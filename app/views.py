@@ -1,3 +1,5 @@
+import json
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password
@@ -26,6 +28,18 @@ def register(request):
         form2 = SignUpForm(prefix="sign")
 
     return render(request, "app/register.html", context={'form1': form1, 'form2': form2})
+
+def check(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        user = None
+    response = {}
+    if user:
+        response['status'] = "Not Available"
+    else:
+        response['status'] = "Available"
+    return HttpResponse(json.dumps(response), content_type="application/json")
 
 def success(request):
     return render(request, "app/success.html", context={})
