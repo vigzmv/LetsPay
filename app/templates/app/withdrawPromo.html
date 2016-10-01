@@ -1,0 +1,18 @@
+{% extends "app/base.html" %}
+{% load crispy_forms_tags %}
+
+    {% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1>Withdraw Promo Code</h1>
+                <form class="form-control" method="POST" action="{% url 'withdrawPromo' %}">
+                {% csrf_token %}
+                  {{ form|crispy }}
+                  <input type="submit" class="btn btn-success" value="Withdraw" />
+                </form>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div>
+    {% endblock %}

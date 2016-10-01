@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^success/', app_v.success, name="success"),
     url(r'^check/username/(?P<username>[-\w.]+)/$', app_v.check),
     url(r'^create/$', app_v.createPromo, name="createPromo"),
+    url(r'^withdraw/$', app_v.withdrawPromo, name="withdrawPromo"),
 ]

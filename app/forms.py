@@ -24,6 +24,12 @@ class PromosForm(forms.ModelForm):
         model = Promos
         fields = ('phone', 'email', 'amount', 'active', )
 
+class PromoWithdraw(forms.ModelForm):
+    class Meta:
+        model = Promos
+        fields = ('phone', 'email', 'promoCode', )
+            
+
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Username", max_length=30,

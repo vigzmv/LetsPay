@@ -71,3 +71,21 @@ def createPromo(request):
 	else:
 		form = PromosForm()
 	return render(request, 'app/createPromo.html', context={'form': form})
+
+def withdrawPromo(request):
+	if request.method == 'POST':
+		form = PromoWithdraw(request.POST)
+		if form.is_valid():
+			try:
+				pay_user = User.objects.get(id=request.user.id)
+				user = PayUser.objects.get(user=pay_user)
+			except PayUser.DoesNotExist:
+				user = PayUser.objects.all().first()
+			promoCode = form.cleaned_data['promoCode']
+			p = Promos.objects.get(promoCode=promoCode)
+			p.active = False
+			p.save()
+			return HttpResponseRedirect('/app/')
+	else:
+		form = PromoWithdraw()
+	return render(request, 'app/withdrawPromo.html', context={'form': form})
