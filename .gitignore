@@ -1,4 +1,4 @@
 *.pyc
-statticfiles/
+stattic/
 *.sqlite3
 .idea/
