@@ -1,0 +1,4 @@
+*.pyc
+statticfiles/
+*.sqlite3
+.idea/
