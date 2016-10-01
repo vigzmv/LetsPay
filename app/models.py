@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -10,7 +11,7 @@ GENDER = (
 
 
 class Merchant(models.Model):
-	merchant_id = models.CharField(max_length=30, unique=True, blank=False)
+	# merchant_id = models.CharField(max_length=30, unique=True, blank=False)
 	code = models.CharField(max_length=10)
 	name = models.CharField(max_length=50)
 	email = models.EmailField()
@@ -25,7 +26,7 @@ class Expense(models.Model):
 	amount = models.FloatField()
 	timestamp = models.DateTimeField(auto_now_add=True)
 	merchant_id = models.ForeignKey('Merchant')
-	user_id = models.ForeignKey('User')
+	user_id = models.ForeignKey('PayUser')
 
 	def __str__(self):
 		return "%s" % self.expense_id
@@ -35,14 +36,16 @@ class Approval(models.Model):
 	amount = models.FloatField()
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
-	master = models.ForeignKey('User',related_name="approval_master", blank=False)
-	child = models.ForeignKey('User')
+	master = models.ForeignKey('PayUser',related_name="approval_master", blank=False)
+	child = models.ForeignKey('PayUser')
 
 	def __str__(self):
 		return "%s" % self.approval_id
 
-class User(models.Model):
-	user_id = models.CharField(max_length=30, unique=True, blank=False)
+class PayUser(models.Model):
+	# user_id = models.CharField(max_length=30, unique=True, blank=False)
+	user = models.OneToOneField(User, blank=False, null=True)
+	password = models.CharField(max_length=30, blank=False, null=True, error_messages={'required': 'This field is required'})
 	name = models.CharField(max_length=50, blank=False)
 	phone = models.CharField(max_length=10, blank=False)
 	email = models.EmailField()
@@ -50,7 +53,7 @@ class User(models.Model):
 	allowance = models.IntegerField()
 	is_master = models.BooleanField(default=False)
 	is_child = models.BooleanField(default=False)
-	master = models.ForeignKey('User', related_name="user_master", blank=True, null=True)
+	master = models.ForeignKey('PayUser', related_name="user_master", blank=True, null=True)
 
 	def __str__(self):
 		return "%s" % self.user_id

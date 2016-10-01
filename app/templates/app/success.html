@@ -1,0 +1,15 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h3>You have successfully Signed up. Now You can login with your Username and Password.</h3>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        setTimeout(function() {
+            window.location.href="/app/"
+        }, 3000);
+    </script>
+{% endblock %}

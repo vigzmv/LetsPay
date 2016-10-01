@@ -1,0 +1,56 @@
+{% extends "app/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block css %}
+    <style>
+        .username-check{
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if not user.is_authenticated %}
+     <div class="jumbotron">
+          <form method="post" action="">
+              {% csrf_token %}
+            {{ form1|crispy }}
+              {{ form2|crispy }}
+          <input class="btn btn-primary" type="submit" name="submit"/>
+        </form>
+      </div>
+    {% else %}
+        <div class="jumbotron">
+        <h1>You are Already Signed in as {{ user }}</h1>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(document).ready(function(){
+            $('#div_id_sign-username').after("<div class='username-check'><div>");
+            $('insput[type="submit"]').prop('disabled', true);
+            $('#id_sign-username').change(function(){
+                var value = $(this).val();
+                if(value != ''){
+                    var url = "https://hitenasintern.herokuapp.com/check/username/"+value
+                    $.ajax({url: url, success: function(result){
+                    if(result['status'] == "Available"){
+                        $('.username-check').html('Username Available');
+                        $('body > div > form > div.username-check').css({'display': 'block', 'border': '2px solid rgba(4, 113, 9, 0.84)', 'background-color': 'rgb(65, 231, 80)', 'border-radius': '5px'});
+                        $('input[type="submit"]').prop('disabled', false);
+                    }
+                    else{
+                        $('.username-check').html('Username Not Available');
+                        $('body > div > form > div.username-check').css({'display': 'block', 'border': '2px solid rgba(255, 0, 0, 0.84)', 'background-color': 'rgb(243, 112, 78)', 'border-radius': '5px'});
+                        $('input[type="submit"]').prop('disabled', true);
+                    }
+                }});
+
+                   $('input[type="submit"]').prop('disabled', false);
+                }
+            });
+        });
+    </script>
+{% endblock %}

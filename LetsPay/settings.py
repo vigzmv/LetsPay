@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'crispy_forms',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -126,3 +127,5 @@ STATICFILES_DIRS = [
     ]
 
 STATIC_ROOT = "/static/"
+
+LOGIN_REDIRECT_URL = '/app/'
