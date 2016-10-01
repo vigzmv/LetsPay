@@ -1,5 +1,8 @@
 body{
 	    background-image: url("../bg3.jpg");
 	    background-repeat: no-repeat;
+}
 
+input{
+	margin-bottom:20px;
 }

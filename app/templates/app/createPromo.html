@@ -5,8 +5,8 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h1>Create Promo Code</h1>
-                <form class="form-control" method="POST" action="{% url 'createPromo' %}">
+                <h1>Create Promo Code</h1><br><br>
+                <form class="form-control" method="POST" action="{% url 'createPromo' %}" style="height: 100%;background: 0;border: 0;">
                 {% csrf_token %}
                   {{ form|crispy }}
                   <input type="submit" class="btn btn-success" value="Create" />
