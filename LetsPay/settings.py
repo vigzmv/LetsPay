@@ -102,6 +102,7 @@ DATABASES = {
 #     },
 # ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -129,3 +130,23 @@ STATICFILES_DIRS = [
 STATIC_ROOT = "/static/"
 
 LOGIN_REDIRECT_URL = '/app/'
+
+# Merchant Credentials
+
+MID = "Payaut54959786493007"
+Industry_type_id = "Retail"
+Website_Name = "AutoDebit"
+Merchant_Key = "0aO3vzgaGK6zc%fo"
+User_Name = "AutoDebit"
+
+# Staging APIS
+
+OAUTH_API = "https://accounts-uat.paytm.com/"
+SEND_OTP = OAUTH_API + "signin/otp"
+GET_ACCESS_TOKEN = OAUTH_API + "signin/validate/otp"
+
+WALLET_API = "https://pguat.paytm.com/"
+CHECK_BALANCE = "http://trust-uat.paytm.in/wallet-web/checkBalance"
+ADD_MONEY = WALLET_API + "oltp-web/processTransaction"
+WITHDRAW_API = WALLET_API + "oltp/HANDLER_FF/withdrawScw"
+

@@ -15,4 +15,6 @@ urlpatterns = [
     url(r'^check/username/(?P<username>[-\w.]+)/$', app_v.check),
     url(r'^create/$', app_v.createPromo, name="createPromo"),
     url(r'^withdraw/$', app_v.withdrawPromo, name="withdrawPromo"),
+    url(r'^sendOtp/$', app_v.sendOtp),
+    url(r'^getToken/$', app_v.get_token),
 ]

@@ -8,11 +8,52 @@
                 <h1>Create Promo Code</h1><br><br>
                 <form class="form-control" method="POST" action="{% url 'createPromo' %}" style="height: 100%;background: 0;border: 0;">
                 {% csrf_token %}
+                <input type="text" id="token" value="" hidden/>
                   {{ form|crispy }}
-                  <input type="submit" class="btn btn-success" value="Create" />
+                  <input type="button" class="btn btn-success" value="Create" onclick="create()" />
+                  <input type="submit" style="display:none;" class="btn btn-success" value="Create" hidden/>
                 </form>
             </div>
         </div>
         <!-- /.row -->
     </div>
+    {% endblock %}
+
+
+    {% block javascript %}
+    <script type="text/javascript">
+        function getPhone(){
+            return $('#id_phone').val();
+        }        
+        function create() {
+            var settings = {
+              "async": true,
+              "url": "/app/sendOtp/",
+              "method": "POST",
+              "headers": {
+                "content-type": "application/json"
+              },
+              "data": {
+                        "phone": getPhone()
+                    }
+            }
+            $.ajax(settings).done(function (response) {
+                    var otp = prompt("Enter the OTP Recieved :: ");
+                    var settings1 = {
+                      "async": true,
+                      "url": "/app/getToken/",
+                      "method": "POST",
+                      "headers": {
+                        "content-type": "application/json"
+                      },
+                      "data": {"otp": otp }
+                    }
+
+                    $.ajax(settings1).done(function (response) {
+                      $('#token').val(response['access_token']);
+                      $('input[type=submit').click();
+                    });
+            });
+        }
+    </script>
     {% endblock %}

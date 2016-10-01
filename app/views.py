@@ -1,14 +1,19 @@
+import base64
 import json
 import random
+import requests
 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 from .forms import *
+
+state = ""
 
 def index(request):
 	return render(request,'app/home.html',{})
@@ -89,3 +94,42 @@ def withdrawPromo(request):
 	else:
 		form = PromoWithdraw()
 	return render(request, 'app/withdrawPromo.html', context={'form': form})
+
+@csrf_exempt
+def sendOtp(request):
+	url = "https://accounts-uat.paytm.com/signin/otp"
+	print request.body[6:]
+	if request.method != "POST":
+		return JsonResponse({'status':'FAILURE'})
+	payload = "{\n\"phone\":\""+ request.body[6:] +"\",\n\"clientId\":\"staging-grofers\",\n\"scope\":\"wallet\",\n\"responseType\":\"token\"\n}"
+	headers = {
+	    'content-type': "application/json"
+	    }
+
+	response = requests.request("POST", url, data=payload, headers=headers)
+	response = response.json()
+	print response
+	global state
+	state = str(response['state'])
+	print state
+	return JsonResponse({'state': response['state']})
+
+@csrf_exempt
+def get_token(request):
+	global state
+	url = "https://accounts-uat.paytm.com/signin/validate/otp"
+	if request.method != "POST":
+		return JsonResponse({'status':'FAILURE'})
+	payload = "{\"otp\":\"" + request.body[4:] +"\",\"state\":\"" + state + "\"}"
+	print request.body[4:10]
+	print payload
+
+	headers = {
+	    'content-type': "application/json",
+	    "authorization": "Basic c3RhZ2luZy1ncm9mZXJzOjUxZTZkMDk2LTU2ZjYtNDBiNC1hMmI5LTllMGY4ZmE3MDRiOA=="
+	    }
+
+	response = requests.request("POST", url, data=payload, headers=headers)
+	response = response.json()
+	print response
+	return JsonResponse({'access_token': response['access_token']})
