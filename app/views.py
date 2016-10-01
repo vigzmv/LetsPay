@@ -1,7 +1,10 @@
 import json
+import random
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 
 from .models import *
@@ -43,3 +46,28 @@ def check(request, username):
 
 def success(request):
     return render(request, "app/success.html", context={})
+
+@login_required
+def createPromo(request):
+	if request.method == 'POST':
+		form = PromosForm(request.POST)
+		if form.is_valid():
+			try:
+				pay_user = User.objects.get(id=request.user.id)
+				user = PayUser.objects.get(user=pay_user)
+			except PayUser.DoesNotExist:
+				user = PayUser.objects.all().first()
+			promoCode = str(request.user).upper()+"-"+str(int(form.cleaned_data['amount']))+'LP'+str(random.randint(111,999))
+			try:
+				while(Promos.objects.get(promoCode=promoCode)):
+					promoCode += str(random.randint(111,999))
+			except:
+				pass
+			form = form.save(commit=False)
+			form.user = user
+			form.promoCode = promoCode
+			form.save()
+			return HttpResponseRedirect('/app/success')
+	else:
+		form = PromosForm()
+	return render(request, 'app/createPromo.html', context={'form': form})

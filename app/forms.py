@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
-from .models import PayUser
+from .models import PayUser, Promos
 
 
 class UserSignUp(forms.ModelForm):
@@ -18,6 +18,11 @@ class SignUpForm(forms.ModelForm):
     class Meta:
         model = PayUser
         exclude = ('user', )
+
+class PromosForm(forms.ModelForm):
+    class Meta:
+        model = Promos
+        fields = ('phone', 'email', 'amount', 'active', )
 
 
 class LoginForm(AuthenticationForm):

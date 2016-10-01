@@ -5,9 +5,11 @@ from django.db import models
 
 
 class Promos(models.Model):
-	promoCode = models.CharField(max_length=20, unique=True)
+	user = models.ForeignKey('PayUser', null=True)
+	promoCode = models.CharField(max_length=20, blank=False, null=False)
 	amount = models.FloatField(blank=False, null=True)
-	phone = models.ForeignKey('PayUser')
+	email = models.EmailField()
+	phone = models.CharField(max_length=10,  blank=False, null=False)
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 	active = models.BooleanField(default=True)
@@ -16,12 +18,12 @@ class Promos(models.Model):
 		return "%s" % self.promoCode
 
 class PayUser(models.Model):
-	user = models.OneToOneField(User, blank=False, null=True)
+	user = models.ForeignKey(User, blank=False, null=True)
 	password = models.CharField(max_length=30, blank=False, null=True, error_messages={'required': 'This field is required'})
 	name = models.CharField(max_length=50, blank=False)
-	phone = models.CharField(max_length=10, unique=True, blank=False, null=False, primary_key=True)
+	phone = models.CharField(max_length=10, blank=False, null=False)
 	email = models.EmailField()
 
 	def __str__(self):
-		return "%s" % self.phone
+		return str(self.user)
 
