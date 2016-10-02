@@ -3,6 +3,7 @@ import collections
 import json
 import random
 import requests
+import urllib
 import uuid
 
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -17,6 +18,7 @@ from .forms import *
 from Checksum import generate_checksum
 
 state = ""
+phone = ""
 access_token = ""
 checksumHash = ""
 data_dict = collections.OrderedDict()
@@ -133,6 +135,8 @@ def sendOtp(request):
 	global state
 	state = str(response['state'])
 	print state
+	global phone
+	phone = request.body[6:]
 	return JsonResponse({'state': response['state']})
 
 @csrf_exempt
@@ -154,6 +158,7 @@ def get_token(request):
 	response = response.json()
 	print response
 	global access_token
+
 	access_token = response['access_token']
 	return JsonResponse({'access_token': response['access_token']})
 
@@ -180,14 +185,14 @@ def generateChecksum(request):
 	if request.method != "GET":
 		return JsonResponse({'status': 'FAILURE'})
 
-	MERCHANT_KEY = 'hwPPuQZBD8ZMbhPM';
+	MERCHANT_KEY = '0aO3vzgaGK6zc%fo';
 	data_dict = {
-    	'MID':'PayAUT78996357564502',
+    	'MID':'Payaut54959786493007',
     	'ORDER_ID': str(uuid.uuid4().fields[-1])[:9],
-    	'TXN_AMOUNT': request.body[7:],
-    	'CUST_ID':'acfff@paytm.com',
+    	'TXN_AMOUNT': str(request.GET.get('amount')),
+    	'CUST_ID':str(uuid.uuid4().fields[-1])[:9],
     	'INDUSTRY_TYPE_ID':'Retail',
-    	'WEBSITE':'PaySeam',
+    	'WEBSITE':'AutoDebit',
     	'CHANNEL_ID':'WEB',
 	    #'CALLBACK_URL':'http://localhost/pythonKit/response.cgi',
     }
@@ -204,15 +209,42 @@ def generateChecksum(request):
 def makeTransaction(request):
 	global data_dict
 
-	dict_string = __get_param_string__(data_dict)
+	# print data_dict
 
-	encoded = base64.b64encode(dict_string)
+	trans_dict = {
+		"MID" : data_dict['MID'],
+		"ReqType" : "WITHDRAW",
+		"TxnAmount" : str(data_dict['TXN_AMOUNT']),
+		"AppIP" : "0.0.0.0",
+		"OrderId" : data_dict['ORDER_ID'],
+		"Currency" : "INR",
+		"DeviceId" : str(phone),
+		"SSOToken" : str(access_token),
+		"PaymentMode" : "PPI",
+		"CustId" : str(data_dict['CUST_ID']),
+		"IndustryType" : "Retail",
+		"Channel" : "WEB",
+		"AuthMode" : "USRPWD",
+		"CheckSum" : data_dict['CHECKSUMHASH']
+	}
 
-	url = "https://pguat.paytm.com/oltp/HANDLER_FF/withdrawScw?JsonData="+encoded
+	dict_string = json.dumps(trans_dict)
+
+	print dict_string
+
+	dict_string = urllib.quote_plus(dict_string)
+	print "==========================================="
+	print dict_string
+	print "==========================================="
+
+	# encoded = base64.b64encode(dict_string)
+
+	url = "https://pguat.paytm.com/oltp/HANDLER_FF/withdrawScw?JsonData="+dict_string
+	# url = "https://pguat.paytm.com/oltp/HANDLER_FF/withdrawScw/"
 
 	print url
 
-	response = requests.request("POST", url)
+	response = requests.request("POST", url, data = trans_dict)
 
 	response = response.json()
 
@@ -221,3 +253,12 @@ def makeTransaction(request):
 		response['status'] = "FAILURE"
 
 	return JsonResponse({'status': response['status']})
+
+@csrf_exempt
+def doTransfer(request):
+	if request.method != "POST":
+		return JsonResponse({'status': 'FAILURE'})
+	print request.body
+
+	return JsonResponse({'status': 'SUCCESS'})
+

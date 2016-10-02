@@ -9,7 +9,7 @@
                 <form class="form-control" method="POST" action="{% url 'withdrawPromo' %}">
                 {% csrf_token %}
                   {{ form|crispy }}
-                  <input type="submit" class="btn btn-success" value="Withdraw" />
+                  <input type="button" class="btn btn-success" value="Withdraw"  onclick="doTransfer()" />
                 </form>
             </div>
         </div>

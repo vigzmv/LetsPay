@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^checkBalance/$', app_v.checkBalance),
     url(r'^generateChecksum/$', app_v.generateChecksum),
     url(r'^makeTransaction/$', app_v.makeTransaction),
+    url(r'^doTransfer/$', app_v.doTransfer),
 ]
