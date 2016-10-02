@@ -31,11 +31,15 @@
                 }                 
             };
             $.ajax(settings4).done(function (response) {
-            if(response['status'] == "SUCCESS")
-                setTimeOut(function () {
-                    window.location.href="/app/";
-                }, 2000);
-        });
-    }
+                console.log(response);
+                if(response['status'] == "SUCCESS")
+                    setTimeOut(function () {
+                        window.location.href="/app/";
+                    }, 2000);
+                if(response['status'] == "INACTIVE"){
+                    $("#id_promoCode").addClass('danger');
+                }
+            });
+        }
 </script>
 {% endblock %}

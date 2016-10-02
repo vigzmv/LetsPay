@@ -28,6 +28,28 @@
                   {% endif %}
                 </ul>
                 </div>
+               <!--  {% if user.is_authenticated %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sr.</th>
+                            <th>PromoCode</th>
+                            <th>Value</th>
+                            <th>Active</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in list1 %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ i }}</td>
+                            <td>{{ i.amount }}</td>
+                            <td>{% if i.active %}Active{% else %}Inactive{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %} -->
             </div>
         </div>
         <!-- /.row -->

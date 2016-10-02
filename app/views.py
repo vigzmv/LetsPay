@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 from .forms import *
-from Checksum import generate_checksum
+from Checksum import generate_checksum, generate_checksum_by_str
 
 state = ""
 phone = ""
@@ -36,7 +36,13 @@ def index(request):
 		pay_user = User.objects.get(id=request.user.id)
 		user = PayUser.objects.get(user=pay_user)
 		promos = Promos.objects.filter(user=user)
-		context = {'promoCodes': promos}
+		list1 = promos.objects.filter(active=True).order_by('-created')
+		print list1
+		list2 = promos.objects.filter(active=False).order_by('-created')
+		print list2
+		list1.append(list2)
+		print list1
+		context = {'lists': list1}
 	else:
 		context = {}
 	return render(request,'app/home.html', context=context)
@@ -194,12 +200,19 @@ def generateChecksum(request):
     	'INDUSTRY_TYPE_ID':'Retail',
     	'WEBSITE':'AutoDebit',
     	'CHANNEL_ID':'WEB',
+    	"ReqType" : "WITHDRAW",
+    	"AppIP" : "0.0.0.0",
+    	"Currency" : "INR",
+    	"DeviceId" : str(phone),
+    	"SSOToken" : str(access_token),
+    	"PaymentMode" : "PPI",
+		"AuthMode" : "USRPWD"
 	    #'CALLBACK_URL':'http://localhost/pythonKit/response.cgi',
     }
 	checksumHash = generate_checksum(data_dict, MERCHANT_KEY)
 	print checksumHash
 	print "OrderId = ", data_dict['ORDER_ID']
-	data_dict['CHECKSUMHASH'] = checksumHash
+	data_dict['CheckSum'] = checksumHash
 
 	print data_dict
 
@@ -211,24 +224,24 @@ def makeTransaction(request):
 
 	# print data_dict
 
-	trans_dict = {
-		"MID" : data_dict['MID'],
-		"ReqType" : "WITHDRAW",
-		"TxnAmount" : str(data_dict['TXN_AMOUNT']),
-		"AppIP" : "0.0.0.0",
-		"OrderId" : data_dict['ORDER_ID'],
-		"Currency" : "INR",
-		"DeviceId" : str(phone),
-		"SSOToken" : str(access_token),
-		"PaymentMode" : "PPI",
-		"CustId" : str(data_dict['CUST_ID']),
-		"IndustryType" : "Retail",
-		"Channel" : "WEB",
-		"AuthMode" : "USRPWD",
-		"CheckSum" : data_dict['CHECKSUMHASH']
-	}
+	# trans_dict = {
+	# 	"MID" : data_dict['MID'],
+	# 	"ReqType" : "WITHDRAW",
+	# 	"TxnAmount" : str(data_dict['TXN_AMOUNT']),
+	# 	"AppIP" : "0.0.0.0",
+	# 	"OrderId" : data_dict['ORDER_ID'],
+	# 	"Currency" : "INR",
+	# 	"DeviceId" : str(phone),
+	# 	"SSOToken" : str(access_token),
+	# 	"PaymentMode" : "PPI",
+	# 	"CustId" : str(data_dict['CUST_ID']),
+	# 	"IndustryType" : "Retail",
+	# 	"Channel" : "WEB",
+	# 	"AuthMode" : "USRPWD",
+	# 	"CheckSum" : data_dict['CHECKSUMHASH']
+	# }
 
-	dict_string = json.dumps(trans_dict)
+	dict_string = json.dumps(data_dict)
 
 	print dict_string
 
@@ -244,15 +257,15 @@ def makeTransaction(request):
 
 	print url
 
-	response = requests.request("POST", url, data = trans_dict)
+	response = requests.request("POST", url, data = dict_string)
 
 	response = response.json()
 
 	print response
-	if response['Error'] != None:
+	if 'Error' in response.iterkeys():
 		response['status'] = "FAILURE"
 
-	return JsonResponse({'status': response['status']})
+	return JsonResponse({'status': response['Status']})
 
 @csrf_exempt
 def doTransfer(request):
@@ -266,18 +279,41 @@ def doTransfer(request):
 
 	try:
 		p = get_object_or_404(Promos, promoCode=promoCode)
-		url = "http://trust-uat.paytm.in/"
+		print p
+		if not p.active:
+			return JsonResponse({'status': "INACTIVE"})
+		url = "http://trust-uat.paytm.in/wallet-web/salesToUserCredit/"
 		data = {
 			"request": {
-					"requestType": None,
+					"requestType": "null",
 					"merchantGuid": "65ca3267-60d8-4601-8f0f-4bcde3234548",
-					"merchantOrderId": ""
-				}
+					"merchantOrderId": str(uuid.uuid4().fields[-1])[:9],
+					"salesWalletGuid": "c4e48742-26e2-4f5e-95f2-f5f9bd60f6f7",
+					"payeePhoneNumber": phone,
+					"appliedToNewUsers": "N",
+					"amount": str(p.amount),
+					"currencyCode": "INR"
+				},
+				"metadata": "Let's Pay",
+				"ipAddress": "0.0.0.0",
+				"platformName": "PayTM",
+				"operationType": "SALES_TO_USER_CREDIT"
+			}
+
+		checksumHash = generate_checksum_by_str(data, "1%!zTZsyiYcgKccf")
+		headers = {
+			"content-type": "application/json",
+			"MID": "65ca3267-60d8-4601-8f0f-4bcde3234548",
+			"Checksumhash": checksumHash
 		}
-		if not p.active:
-			return JsonResponse({'status': 'FAILURE'})
-		p.active=False
-		p.save()
+		print data
+		response = requests.request("POST", url, data=data, headers=headers)
+		response = response.json()
+		print response
+		if(response['status'] != None):
+			p.amount=0
+			p.active=False
+			p.save()
 	except Promos.DoesNotExist:
 		return JsonResponse({'status': 'FAILURE'})
 	return JsonResponse({'status': 'SUCCESS'})

@@ -9,3 +9,7 @@ input{
 li{
 	display:inline; 
 }
+
+.danger{
+	border: 2px solid red;
+}
