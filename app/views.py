@@ -1,7 +1,9 @@
 import base64
+import collections
 import json
 import random
 import requests
+import uuid
 
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -12,11 +14,29 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 from .forms import *
+from Checksum import generate_checksum
 
 state = ""
+access_token = ""
+checksumHash = ""
+data_dict = collections.OrderedDict()
+
+def __get_param_string__(params):
+    params_string = []
+    for key in sorted(params.iterkeys()):
+        value = params[key]
+        params_string.append('' if value == 'null' else str(value))
+    return '|'.join(params_string)
 
 def index(request):
-	return render(request,'app/home.html',{})
+	if request.user.is_authenticated and not request.user.is_superuser:
+		pay_user = User.objects.get(id=request.user.id)
+		user = PayUser.objects.get(user=pay_user)
+		promos = Promos.objects.filter(user=user)
+		context = {'promoCodes': promos}
+	else:
+		context = {}
+	return render(request,'app/home.html', context=context)
 
 def register(request):
     if request.method == "POST":
@@ -132,4 +152,71 @@ def get_token(request):
 	response = requests.request("POST", url, data=payload, headers=headers)
 	response = response.json()
 	print response
+	global access_token
+	access_token = response['access_token']
 	return JsonResponse({'access_token': response['access_token']})
+
+@csrf_exempt
+def checkBalance(request):
+	global access_token
+	url = "http://trust-uat.paytm.in/wallet-web/checkBalance"
+
+	if request.method != "POST":
+		return JsonResponse({'status': 'FAILURE'})
+	headers = {
+		'ssotoken' : access_token
+	}
+	response = requests.request("POST", url, headers=headers)
+	# print response.json()
+	response = response.json()
+	print response
+
+	return JsonResponse({'balance': response['response']['amount']})
+
+def generateChecksum(request):
+	global checksumHash
+	global data_dict
+	if request.method != "GET":
+		return JsonResponse({'status': 'FAILURE'})
+
+	MERCHANT_KEY = 'hwPPuQZBD8ZMbhPM';
+	data_dict = {
+    	'MID':'PayAUT78996357564502',
+    	'ORDER_ID': str(uuid.uuid4().fields[-1])[:9],
+    	'TXN_AMOUNT': request.body[7:],
+    	'CUST_ID':'acfff@paytm.com',
+    	'INDUSTRY_TYPE_ID':'Retail',
+    	'WEBSITE':'PaySeam',
+    	'CHANNEL_ID':'WEB',
+	    #'CALLBACK_URL':'http://localhost/pythonKit/response.cgi',
+    }
+	checksumHash = generate_checksum(data_dict, MERCHANT_KEY)
+	print checksumHash
+	print "OrderId = ", data_dict['ORDER_ID']
+	data_dict['CHECKSUMHASH'] = checksumHash
+
+	print data_dict
+
+	return JsonResponse({'status': 'SUCCESS'})
+
+@csrf_exempt
+def makeTransaction(request):
+	global data_dict
+
+	dict_string = __get_param_string__(data_dict)
+
+	encoded = base64.b64encode(dict_string)
+
+	url = "https://pguat.paytm.com/oltp/HANDLER_FF/withdrawScw?JsonData="+encoded
+
+	print url
+
+	response = requests.request("POST", url)
+
+	response = response.json()
+
+	print response
+	if response['Error'] != None:
+		response['status'] = "FAILURE"
+
+	return JsonResponse({'status': response['status']})

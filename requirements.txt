@@ -9,6 +9,7 @@ django-crispy-forms==1.6.0
 gunicorn==19.6.0
 kombu==3.0.35
 psycopg2==2.6.2
+pycrypto==2.6.1
 pytz==2016.6.1
 redis==2.10.5
 requests==2.11.1

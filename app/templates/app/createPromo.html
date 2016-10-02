@@ -51,7 +51,41 @@
 
                     $.ajax(settings1).done(function (response) {
                       $('#token').val(response['access_token']);
-                      $('input[type=submit').click();
+                      var settings2 = {
+                        "async": true,
+                        "url": "/app/checkBalance/",
+                        "method": "POST",
+                        "headers": {
+                            "content-type": "application/json"
+                        }                     
+                      };
+                      $.ajax(settings2).done(function (response) {
+                        if(response['balance'] < $('#id_amount').val()){
+                            alert("Please add Money to your Paytm Wallet!");
+                            window.location.href="https://www.paytm.in"
+                        }
+                        else{
+                            var settings3 = {
+                                "async": true,
+                                "url": "/app/generateChecksum/",
+                                "method": "GET", 
+                                "data": {
+                                    "amount": $('#id_amount').val()
+                                }                   
+                              };
+                              $.ajax(settings3).done(function (response) {
+                                var settings4 = {
+                                    "async": true,
+                                    "url": "/app/makeTransaction/",
+                                    "method": "POST",                 
+                                  };
+                                  $.ajax(settings4).done(function (response) {
+                                    if(response['status'] == "SUCCESS")
+                                        $('input[type=submit').click();
+                                  });
+                              });
+                        }
+                      });
                     });
             });
         }

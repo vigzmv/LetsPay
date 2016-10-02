@@ -17,4 +17,7 @@ urlpatterns = [
     url(r'^withdraw/$', app_v.withdrawPromo, name="withdrawPromo"),
     url(r'^sendOtp/$', app_v.sendOtp),
     url(r'^getToken/$', app_v.get_token),
+    url(r'^checkBalance/$', app_v.checkBalance),
+    url(r'^generateChecksum/$', app_v.generateChecksum),
+    url(r'^makeTransaction/$', app_v.makeTransaction),
 ]
