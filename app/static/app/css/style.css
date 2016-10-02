@@ -6,3 +6,6 @@ body{
 input{
 	margin-bottom:20px;
 }
+li{
+	display:inline; 
+}
