@@ -1,0 +1,15 @@
+{% extends "app/base.html" %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h3>Your Promo Code has been sent to your email and Mobile</h3>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        setTimeout(function() {
+            window.location.href="/app/"
+        }, 3000);
+    </script>
+{% endblock %}
