@@ -5,8 +5,8 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h1>Withdraw Promo Code</h1><br><br>
-                <form class="form-control" method="POST" action="{% url 'withdrawPromo' %}" style="height: 100%;background: 0;border: 0;">
+                <h1>Withdraw Promo Code</h1>
+                <form class="form-control" method="POST" action="{% url 'withdrawPromo' %}">
                 {% csrf_token %}
                   {{ form|crispy }}
                   <input type="button" class="btn btn-success" value="Withdraw"  onclick="doTransfer()" />
@@ -16,3 +16,27 @@
         <!-- /.row -->
     </div>
     {% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    function doTransfer(){
+        $.ajax(settings3).done(function (response) {
+            var settings4 = {
+                "async": true,
+                "url": "/app/makeTransaction/",
+                "method": "POST",
+                "data": {
+                    "phone" : $("#id_phone").val(),
+                    "email" : $("#id_email").val(),
+                    "promoCode" : $("#id_promoCode").val()
+                }                 
+            };
+            $.ajax(settings4).done(function (response) {
+            if(response['status'] == "SUCCESS")
+                setTimeOut(function () {
+                    window.location.href="/app/";
+                }, 2000);
+        });
+    }
+</script>
+{% endblock %}
