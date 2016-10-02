@@ -3,20 +3,18 @@
     {% block content %}
     <div class="container">
         <div class="row">
-            <div class="text-center">
+            <div class="text-center" style="text-align: center;">
                 <div class="btn-primary btn-lg" style="width:60%;margin:auto;padding:70px;font-weight:900;font-size:3.5em;">Welcome to Let's Pay!</div>
                 <br>
                 <br>
                 <div class="lead" style="font-weight:900">Create And Share Cash as Promo Codes</div>
                     <br>
                     <br>
-                    <br>
-                    <br>
-                <ul class="list-unstyled">
+                    <div style="text-align: center;">
+                <ul class="list-unstyled" style="display: inline;margin:auto;">
                   {% if user.is_authenticated %}
-                    <li><a href="{% url "createPromo" %}"><button class="btn-success btn-lg" style="width:20%;margin:auto;">Create</button></a></li>
-                    <br>
-                    <li><a href="{% url "withdrawPromo" %}"><button class="btn-success btn-lg" style="width:20%;margin:auto;">Withdraw</button></a></li>
+                    <li><a href="{% url "createPromo" %}"><button class="btn-success btn-lg" style="margin:20px;margin: 0 auto">Create</button></a></li><li style="width=100%">&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                    <li><a href="{% url "withdrawPromo" %}"><button class="btn-success btn-lg" style="margin:20px;margin: 0 auto">Withdraw</button></a></li>
                     <br>
                     <br>
                     <br>
@@ -25,11 +23,11 @@
                     <br>
                     {# <li><a href="{% url "logout" %}"><button class="btn-warning btn-lg"style="width:20%;margin:auto;">Logout</button></a></li> #}
                   {% else %}
-                    <li><a href="{% url "login" %}"><button class="btn-success btn-lg" style="width:20%;margin:auto;">Login</button></a></li>
-                    <br>
-                    <li><a href="{% url "register" %}"><button class="btn-warning btn-lg" style="width:20%;margin:auto;">Register</button></a></li>
+                    <li><a href="{% url "login" %}"><button class="btn-success btn-lg" style="width:100%;margin:20px;">Login</button></a></li><li style="width=100%">&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                    <li><a href="{% url "register" %}"><button class="btn-warning btn-lg" style="width:100%;margin:20px;">Register</button></a></li>
                   {% endif %}
                 </ul>
+                </div>
             </div>
         </div>
         <!-- /.row -->
