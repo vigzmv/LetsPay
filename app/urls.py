@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^logout/$', views.logout, {'next_page': '/app/'}, name='logout'),
     url(r'^register/$', app_v.register, name="register"),
     url(r'^success/', app_v.success, name="success"),
+    url(r'^success1/', app_v.success1, name="success1"),
     url(r'^check/username/(?P<username>[-\w.]+)/$', app_v.check),
     url(r'^create/$', app_v.createPromo, name="createPromo"),
     url(r'^withdraw/$', app_v.withdrawPromo, name="withdrawPromo"),

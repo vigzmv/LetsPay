@@ -75,6 +75,9 @@ def check(request, username):
 def success(request):
     return render(request, "app/success.html", context={})
 
+def success1(request):
+    return render(request, "app/success1.html", context={})
+
 @login_required
 def createPromo(request):
 	if request.method == 'POST':
@@ -95,7 +98,7 @@ def createPromo(request):
 			form.user = user
 			form.promoCode = promoCode
 			form.save()
-			return HttpResponseRedirect('/app/success')
+			return HttpResponseRedirect('/app/success1')
 	else:
 		form = PromosForm()
 	return render(request, 'app/createPromo.html', context={'form': form})
