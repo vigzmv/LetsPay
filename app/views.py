@@ -29,7 +29,8 @@ def __get_param_string__(params):
     return '|'.join(params_string)
 
 def index(request):
-	if request.user.is_authenticated and not request.user.is_superuser:
+	print request.user
+	if request.user.is_authenticated and not request.user.is_superuser and not request.user.is_anonymous:
 		pay_user = User.objects.get(id=request.user.id)
 		user = PayUser.objects.get(user=pay_user)
 		promos = Promos.objects.filter(user=user)
