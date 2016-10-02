@@ -7,7 +7,7 @@ import urllib
 import uuid
 
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
@@ -258,7 +258,26 @@ def makeTransaction(request):
 def doTransfer(request):
 	if request.method != "POST":
 		return JsonResponse({'status': 'FAILURE'})
-	print request.body
+	data = request.body.split('&')
+	phone = data[0][7:]
+	email = data[1][6:]
+	promoCode = data[2][10:].upper()	
+	print phone, promoCode
 
+	try:
+		p = get_object_or_404(Promos, promoCode=promoCode)
+		url = "http://trust-uat.paytm.in/"
+		data = {
+			"request": {
+					"requestType": None,
+					"merchantGuid": "65ca3267-60d8-4601-8f0f-4bcde3234548",
+					"merchantOrderId": ""
+				}
+		}
+		if not p.active:
+			return JsonResponse({'status': 'FAILURE'})
+		p.active=False
+		p.save()
+	except Promos.DoesNotExist:
+		return JsonResponse({'status': 'FAILURE'})
 	return JsonResponse({'status': 'SUCCESS'})
-
