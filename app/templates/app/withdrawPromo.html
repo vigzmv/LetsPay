@@ -21,7 +21,6 @@
 {% block javascript %}
 <script type="text/javascript">
     function doTransfer(){
-<<<<<<< HEAD
             var settings4 = {
                 "async": true,
                 "url": "/app/doTransfer/",
@@ -35,18 +34,15 @@
             $.ajax(settings4).done(function (response) {
                 console.log(response);
                 if(response['status'] == "SUCCESS")
-                    setTimeOut(function () {
-                        window.location.href="/app/";
+                    $(".with").slideUp('fast');
+                    $(".withs").slideDown('fast');
+                    setTimeout(function () {
+                        // window.location.href="/app/";
                     }, 2000);
                 if(response['status'] == "INACTIVE"){
                     $("#id_promoCode").addClass('danger');
                 }
             });
-        }
-=======
-            $(".with").slideUp('fast');
-            $(".withs").slideDown('fast');
     }
->>>>>>> 78096cad96f2fb4ee75c1a535b821f02606ba4c4
 </script>
 {% endblock %}

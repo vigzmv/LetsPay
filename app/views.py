@@ -4,6 +4,7 @@ import json
 import random
 import requests
 import urllib
+import urlparse
 import uuid
 
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
@@ -15,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 from .forms import *
-from Checksum import generate_checksum, generate_checksum_by_str
+from Checksum import generate_checksum, generate_checksum_by_str, verify_checksum
 
 state = ""
 phone = ""
@@ -219,6 +220,10 @@ def generateChecksum(request):
 
 	print data_dict
 
+	verify = verify_checksum(data_dict, MERCHANT_KEY, data_dict['CheckSum'])
+	print verify
+	print data_dict
+
 	return JsonResponse({'status': 'SUCCESS'})
 
 @csrf_exempt
@@ -274,11 +279,13 @@ def makeTransaction(request):
 def doTransfer(request):
 	if request.method != "POST":
 		return JsonResponse({'status': 'FAILURE'})
-	data = request.body.split('&')
-	phone = data[0][7:]
-	email = data[1][6:]
-	promoCode = data[2][10:].upper()	
-	print phone, promoCode
+	data = urlparse.parse_qs(urllib.unquote(urllib.unquote(request.body)))
+	print data
+	# data = json.dumps(data)
+	phone = data['phone'][0]
+	email = data['email'][0]
+	promoCode = data['promoCode'][0].upper()	
+	print phone, promoCode, email
 
 	try:
 		p = get_object_or_404(Promos, promoCode=promoCode)
@@ -303,13 +310,20 @@ def doTransfer(request):
 				"operationType": "SALES_TO_USER_CREDIT"
 			}
 
-		checksumHash = generate_checksum_by_str(data, "1%!zTZsyiYcgKccf")
+		checksumHash = generate_checksum_by_str(__get_param_string__(data), "1%!zTZsyiYcgKccf")
+		print checksumHash
 		headers = {
-			"content-type": "application/json",
+			"Content-Type": "application/json",
 			"MID": "65ca3267-60d8-4601-8f0f-4bcde3234548",
 			"Checksumhash": checksumHash
 		}
-		print data
+		print "======================"
+		print "data :::: \n" , data
+		print "======================"
+		print "headers :::: \n" , headers
+		print "======================"
+		print url
+		print "======================"
 		response = requests.request("POST", url, data=data, headers=headers)
 		response = response.json()
 		print response
@@ -317,6 +331,8 @@ def doTransfer(request):
 			p.amount=0
 			p.active=False
 			p.save()
+			print "Promo Code", promoCode, "deactivated."
+			return JsonResponse({'status': 'SUCCESS'})
 	except Promos.DoesNotExist:
-		return JsonResponse({'status': 'FAILURE'})
-	return JsonResponse({'status': 'SUCCESS'})
+		return JsonResponse({'status': 'Promo Code does not Exist.'})
+	return JsonResponse({'status': 'FAILURE'})
